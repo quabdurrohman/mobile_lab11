@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../bloc/search_bloc.dart';
 import '../cubit/details_cubit.dart';
 import '../cubit/products_cubit.dart';
 import '../cubit/products_state.dart';
@@ -8,6 +9,7 @@ import '../data/product_api.dart';
 import '../models/product.dart';
 import '../widgets/product_tile.dart';
 import 'details_screen.dart';
+import 'search_screen.dart';
 
 class ProductsScreen extends StatelessWidget {
   const ProductsScreen({super.key});
@@ -23,6 +25,17 @@ class ProductsScreen extends StatelessWidget {
     );
   }
 
+  void _openSearch(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => BlocProvider(
+          create: (c) => SearchBloc(c.read<ProductApi>()),
+          child: const SearchScreen(),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -31,7 +44,7 @@ class ProductsScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.search),
-            onPressed: () {}, // wired to the search screen in Part 5
+            onPressed: () => _openSearch(context),
           ),
         ],
       ),
@@ -60,7 +73,6 @@ class ProductsScreen extends StatelessWidget {
               onRefresh: () => context.read<ProductsCubit>().refresh(),
               child: ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
-                // one extra row at the end for "Load more", only while hasMore
                 itemCount: loaded.products.length + (loaded.hasMore ? 1 : 0),
                 itemBuilder: (context, i) {
                   if (i == loaded.products.length) {
